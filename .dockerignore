@@ -1,0 +1,16 @@
+docker-compose.test.yml
+docker-compose.dev.yml
+docker-compose.yml
+
+.gitignore
+
+env
+venv
+
+__pycache__/
+
+.idea/
+
+htmlcov/
+
+static/
