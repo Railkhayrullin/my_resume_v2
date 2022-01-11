@@ -10,6 +10,7 @@ class ContactInfo(models.Model):
     address = models.CharField('адрес', max_length=255, default='')
     phone = models.CharField('телефон', max_length=15)
     email = models.EmailField('email', max_length=64)
+    photo = models.ImageField('фото', upload_to='photo')
 
     def __str__(self):
         return self.name

@@ -1,0 +1,86 @@
+version: "2.4"
+
+x-resume-backend-db-vars: &resume-backend-db-vars
+  POSTGRES_HOST: "resume-backend-db"
+  POSTGRES_DB: "resume-backend"
+  POSTGRES_USER: "resume-backend"
+  POSTGRES_PASSWORD: "resume-backend"
+  PGPASSWORD: "resume-backend"
+  PGDATA: "/var/lib/postgresql/data"
+
+x-resume-backend-app: &resume-backend-app
+  <<: *resume-backend-db-vars
+  DJANGO_SETTINGS_MODULE: "${DJANGO_SETTINGS_MODULE}"
+  DEBUG: "${DEBUG}"
+  ENVIRONMENT_NAME: "${CI_ENVIRONMENT_NAME}"
+  SERVER_NAME: "${SERVER_NAME}"
+  BACKEND_SECRET_KEY: "${BACKEND_SECRET_KEY}"
+
+x-nginx-vars: &nginx-vars
+  DOLLAR: "$$"
+  DISALLOW_ROBOTS: "#"
+
+
+services:
+  resume-backend-db:
+    image: postgres:14-alpine
+    environment: *resume-backend-db-vars
+    volumes:
+      - "resume-backend-db:/var/lib/postgresql/data"
+    ports:
+      - 5432:5432
+
+  resume-backend-app:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      cache_from:
+        - ${CI_REGISTRY_IMAGE}/server:${CI_COMMIT_REF_SLUG}
+    image: ${CI_REGISTRY_IMAGE}/server:${CI_COMMIT_REF_SLUG}
+    depends_on:
+      - resume-backend-db
+    volumes:
+      - "/srv/static/"
+      - "./server:/srv/app/"
+    environment:
+      <<: *resume-backend-app
+      PUDB_RDB_HOST: "0.0.0.0"
+      PUDB_RDB_PORT: "6900"
+    ports:
+      - 80:8000
+      - 6900:6900
+    command: >
+      uwsgi
+      --socket 0.0.0.0:8000
+      --master --processes 4 --threads 8
+      --wsgi core.wsgi
+      --enable-threads --single-interpreter
+      --ignore-sigpipe --ignore-write-errors
+      --disable-write-exception
+      --memory-report
+      --harakiri 75
+      --reload-on-rss 300
+      --max-requests 100
+      --vacuum
+
+  resume-backend-nginx:
+    build:
+      context: ./nginx
+      cache_from:
+        - ${CI_REGISTRY_IMAGE}/nginx:${CI_COMMIT_REF_SLUG}
+    image: ${CI_REGISTRY_IMAGE}/nginx:${CI_COMMIT_REF_SLUG}
+    depends_on:
+      - resume-backend-app
+    volumes_from:
+      - resume-backend-app
+    environment:
+      <<: *nginx-vars
+      SERVER_HOST: "resume-backend-app"
+      SERVER_NAME: "${SERVER_NAME_RESUME}"
+
+
+volumes:
+  resume-backend-db:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
