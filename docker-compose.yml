@@ -19,6 +19,8 @@ x-resume-backend-app: &resume-backend-app
 x-nginx-vars: &nginx-vars
   DOLLAR: "$$"
   DISALLOW_ROBOTS: "#"
+  SERVER_HOST: "resume-backend-app"
+  SERVER_NAME: "${SERVER_NAME_RESUME}"
 
 
 services:
@@ -28,7 +30,7 @@ services:
     volumes:
       - "resume-backend-db:/var/lib/postgresql/data"
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT:-5432}:5432
 
   resume-backend-app:
     build:
@@ -73,10 +75,9 @@ services:
       - resume-backend-app
     volumes_from:
       - resume-backend-app
-    environment:
-      <<: *nginx-vars
-      SERVER_HOST: "resume-backend-app"
-      SERVER_NAME: "${SERVER_NAME_RESUME}"
+    environment: *nginx-vars
+    ports:
+      - 8000:80
 
 
 volumes:
