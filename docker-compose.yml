@@ -42,7 +42,6 @@ services:
     depends_on:
       - resume-backend-db
     volumes:
-      - "/srv/static/"
       - "./server:/srv/app/"
     environment:
       <<: *resume-backend-app

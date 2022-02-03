@@ -17,13 +17,15 @@ server {
     gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype;
 
     location /resume/static/ {
-        alias /srv/static/;
+        alias /srv/app/static/;
         expires 30d;
     }
 
     location /resume/media/ {
-        alias /srv/media/;
+        alias /srv/app/media/;
         expires 30d;
+        add_header  Cache-control "public";
+        access_log  off;
     }
 
     location = /50x.html {

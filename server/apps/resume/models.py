@@ -11,6 +11,7 @@ class ContactInfo(models.Model):
     phone = models.CharField('телефон', max_length=15)
     email = models.EmailField('email', max_length=64)
     photo = models.ImageField('фото', upload_to='photo')
+    description = models.TextField('описание', max_length=2048, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -42,11 +43,28 @@ class Skills(models.Model):
         return self.name
 
 
+class Skills(models.Model):
+    class Meta:
+        verbose_name = 'навык'
+        verbose_name_plural = 'навыки'
+
+    name = models.CharField('навык', max_length=255)
+    description = models.TextField('описание', max_length=512)
+    score = models.PositiveSmallIntegerField('оценка навыка', default=50)
+    icon = models.CharField('иконка Font Awesome', max_length=64, default='fa fa-check-square-o')
+
+    def __str__(self):
+        return self.name
+
+
 class Education(models.Model):
     class Meta:
         verbose_name = 'образование'
 
     name = models.CharField('учебное заведение', max_length=255)
+    degree = models.CharField('ученая степень', max_length=255)
+    specialization = models.CharField('специализаия', max_length=255)
+    gpa = models.DecimalField('средний балл', max_digits=4, decimal_places=2, default='5.00')
     date_for = models.DateField('дата начала обучения')
     date_to = models.DateField('дата окончания обучения')
 
@@ -61,7 +79,7 @@ class Certificate(models.Model):
 
     name = models.CharField('сертификат', max_length=255)
     score = models.PositiveSmallIntegerField('оценка', default=50)
-    image = models.ImageField('изображение', upload_to='certifications')
+    image = models.ImageField('изображение', upload_to='certifications',  null=True, blank=True)
     date = models.DateField('дата получения')
     url = models.URLField('ссылка на сертификат', max_length=255, default='https://')
 
@@ -75,6 +93,7 @@ class Job(models.Model):
 
     organisation = models.CharField('организация', max_length=255)
     position = models.TextField('должность', max_length=255)
+    description = models.TextField('описание', max_length=2048)
     date_for = models.DateField('дата начала работы')
     date_to = models.DateField('дата окончания работы', null=True, blank=True)
 
@@ -89,7 +108,7 @@ class Project(models.Model):
 
     name = models.CharField('проект', max_length=255)
     description = models.TextField('описание', max_length=512)
-    image = models.ImageField('изображение', upload_to='projects/')
+    image = models.ImageField('изображение', upload_to='projects/', null=True, blank=True)
     url = models.URLField('ссылка', max_length=255, default='https://')
 
     def __str__(self):
