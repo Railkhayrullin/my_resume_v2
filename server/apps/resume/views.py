@@ -1,6 +1,6 @@
 from django.views.generic import ListView
 
-from apps.resume.models import Character, ContactInfo, Skills, Education, Certificate, Job, Project, SocialNetwork
+from apps.resume.models import Character, ContactInfo, Skill, Education, Certificate, Job, Project, SocialNetwork
 
 
 class ResumeListView(ListView):
@@ -9,7 +9,7 @@ class ResumeListView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         kwargs['contact_info'] = ContactInfo.objects.all().first()
-        kwargs['skills'] = Skills.objects.all()
+        kwargs['skills'] = Skill.objects.all()
         kwargs['education'] = Education.objects.all()
         kwargs['certificates'] = Certificate.objects.all()
         kwargs['jobs'] = Job.objects.all().order_by('date_for')

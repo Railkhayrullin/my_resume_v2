@@ -20,16 +20,16 @@ class ContactInfo(models.Model):
 class Character(models.Model):
     class Meta:
         verbose_name = 'характер'
+        verbose_name_plural = 'характер'
 
     name = models.CharField('характер', max_length=255)
     description = models.TextField('описание', max_length=512)
-    is_good = models.BooleanField('это достоинство?', default=True)
 
     def __str__(self):
         return self.name
 
 
-class Skills(models.Model):
+class Skill(models.Model):
     class Meta:
         verbose_name = 'навык'
         verbose_name_plural = 'навыки'
@@ -37,21 +37,7 @@ class Skills(models.Model):
     name = models.CharField('навык', max_length=255)
     description = models.TextField('описание', max_length=512)
     score = models.PositiveSmallIntegerField('оценка навыка', default=50)
-    icon = models.CharField('иконка Font Awesome', max_length=64, default='fa fa-check-square-o')
-
-    def __str__(self):
-        return self.name
-
-
-class Skills(models.Model):
-    class Meta:
-        verbose_name = 'навык'
-        verbose_name_plural = 'навыки'
-
-    name = models.CharField('навык', max_length=255)
-    description = models.TextField('описание', max_length=512)
-    score = models.PositiveSmallIntegerField('оценка навыка', default=50)
-    icon = models.CharField('иконка Font Awesome', max_length=64, default='fa fa-check-square-o')
+    icon = models.CharField('иконка Font Awesome', max_length=64, default='fab fa-check-square-o')
 
     def __str__(self):
         return self.name

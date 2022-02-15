@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ContactInfo, Character, Skills, Education, Certificate, Job, Project, SocialNetwork
+from .models import ContactInfo, Character, Skill, Education, Certificate, Job, Project, SocialNetwork
 
 
 @admin.register(ContactInfo)
@@ -22,7 +22,7 @@ class MyHobbyAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 
-@admin.register(Skills)
+@admin.register(Skill)
 class SkillsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'score')
     list_display_links = ('name',)
