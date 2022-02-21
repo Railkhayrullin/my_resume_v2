@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 
 COPY . /srv/app/
 
-ENTRYPOINT ["./scripts/entrypoint.sh"]
+ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]
