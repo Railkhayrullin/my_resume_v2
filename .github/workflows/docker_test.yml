@@ -1,0 +1,14 @@
+name: Run tests on any Push event
+on:
+  push:
+    tags:
+      - '!refs/tags/*'
+    branches:
+      - '*'
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build the docker-compose TEST stack
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml up --buil
