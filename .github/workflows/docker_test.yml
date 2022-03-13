@@ -10,5 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Build the docker-compose TEST stack
-        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml up --buil
+      - name: Pull TEST containers
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml pull
+      
+      - uses: actions/checkout@v1
+      - name: Up TEST containers
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
+      
+      - uses: actions/checkout@v1
+      - name: ERRORS CHECK in TEST containers
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml logs --tail=50 || grep ERROR
+      
+      - uses: actions/checkout@v1
+      - name: CLEAN TEST containers
+        run: docker image prune -af
