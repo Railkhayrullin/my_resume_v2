@@ -1,0 +1,14 @@
+version: "2.4"
+services:
+  resume-backend-nginx:
+    ports:
+      - "8080:80"
+
+  resume-backend-app:
+    volumes:
+      - "./server:/srv/app/"
+    ports:
+      - "8888:80"
+      - "6900:6900"
+    environment:
+      PUDB_RDB_HOST: '0.0.0.0'

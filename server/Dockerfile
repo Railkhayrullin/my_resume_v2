@@ -2,9 +2,7 @@ FROM python:3.8-buster
 
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update -qq && apt-get install -y postgresql-client
-
-RUN pip install -U pip uwsgi
+RUN apt-get update -qq && apt-get install -y postgresql-client && pip install -U pip uwsgi
 
 WORKDIR /srv/app/
 

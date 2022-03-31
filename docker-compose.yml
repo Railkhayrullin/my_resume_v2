@@ -30,7 +30,7 @@ services:
     volumes:
       - resume-backend-db:/var/lib/postgresql/data
     ports:
-      - ${POSTGRES_PORT:-5432}:5432
+      - "${POSTGRES_PORT:-5432}:5432"
 
   resume-backend-app:
     build:
@@ -47,22 +47,20 @@ services:
       <<: *resume-backend-app
       PUDB_RDB_HOST: "0.0.0.0"
       PUDB_RDB_PORT: "6900"
-    ports:
-      - 80:8000
-      - 6900:6900
     command: >
       uwsgi
-      --socket 0.0.0.0:8000
-      --master --processes 4 --threads 8
-      --wsgi core.wsgi
-      --enable-threads --single-interpreter
-      --ignore-sigpipe --ignore-write-errors
-      --disable-write-exception
-      --memory-report
-      --harakiri 75
-      --reload-on-rss 300
-      --max-requests 100
-      --vacuum
+        --socket 0.0.0.0:8000
+        --http 0.0.0.0:80
+        --master --processes 4 --threads 8
+        --wsgi core.wsgi
+        --enable-threads --single-interpreter
+        --ignore-sigpipe --ignore-write-errors
+        --disable-write-exception
+        --memory-report
+        --harakiri 75
+        --reload-on-rss 300
+        --max-requests 100
+        --vacuum
 
   resume-backend-nginx:
     build:
@@ -75,8 +73,6 @@ services:
     volumes_from:
       - resume-backend-app
     environment: *nginx-vars
-    ports:
-      - 8000:80
 
 
 volumes:
