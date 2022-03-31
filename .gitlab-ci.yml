@@ -1,0 +1,89 @@
+# -------- GLOBAL VARS --------
+variables:
+  DOCKER_IMAGE_CACHE_SERVICES: "server nginx"
+  TEST_SERVICES: "server"
+
+  SERVER_IP_MASTER: "130.193.46.95"
+  SERVER_NAME_MASTER: "django-server-prod.staging.idpowers.com"
+
+# -------- STAGES INFO --------
+
+stages:
+  - build
+  - test
+  - deploy
+
+# -------- DOCKER LOGIN --------
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+
+
+# -------- ALL STAGES --------
+
+build:
+  stage: build
+  only:
+    - master
+    - dev
+  services:
+    - docker:dind
+  script:
+    - docker-compose pull ${DOCKER_IMAGE_CACHE_SERVICES} || true
+    - docker-compose -f docker-compose.yml -f docker-compose.${CI_COMMIT_REF_SLUG}.yml build
+    - docker-compose -f docker-compose.yml -f docker-compose.${CI_COMMIT_REF_SLUG}.yml push
+
+
+test:
+  stage: test
+  only:
+    - master
+    - dev
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  script:
+    - docker-compose pull ${DOCKER_IMAGE_CACHE_SERVICES} || true
+    - docker-compose -f docker-compose.yml -f docker-compose.test.yml build
+    - docker-compose -f docker-compose.yml -f docker-compose.test.yml up ${TEST_SERVICES}  # запускаем только нужные сервисы
+    - docker-compose -f docker-compose.yml -f docker-compose.test.yml stop  # останавливаем сервисы в зависимостях
+    - /bin/sh -c "exit $(docker-compose ps | grep -oE "Exit [^0]" | grep -oE "\d+" | uniq)"  # смотрим итог, если хоть один не 0, будет ошибка
+  artifacts:
+    name: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}
+    paths:
+      - ./server/htmlcov/
+    expire_in: 7 days
+
+
+.deploy-script: &deploy-script
+  script:
+    - docker-compose -f docker-compose.yml -f docker-compose.${CI_COMMIT_REF_NAME}.yml pull
+    - docker-compose -f docker-compose.yml -f docker-compose.${CI_COMMIT_REF_NAME}.yml up -d -V --always-recreate-deps
+    - timeout -t 60 docker-compose -f docker-compose.yml -f docker-compose.${CI_COMMIT_REF_NAME}.yml logs --tail=50 -f || true
+    - docker image prune -af
+
+
+.deploy-env: &deploy-env
+  DJANGO_SETTINGS_MODULE: "core.settings.${CI_COMMIT_REF_NAME}"
+  DEBUG: "0"
+  SERVER_NAME: "${SERVER_NAME}"
+  SERVER_PROTOCOL: "https"
+  SECRET_KEY: "${SECRET_KEY}"
+  EMAIL_HOST_USER: "${EMAIL_HOST_USER}"
+  EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+
+deploy:prod:
+  stage: deploy
+  only:
+    - master
+  environment:
+    name: prod
+    url: 'https://${SERVER_NAME_MASTER}'
+  variables:
+    DOCKER_TLS_VERIFY: '1'
+    DOCKER_HOST: 'tcp://${SERVER_IP_MASTER}:2376'
+    DOCKER_CERT_PATH: '/certs/${CI_PROJECT_NAMESPACE}-prod/'
+    <<: *deploy-env
+  <<: *deploy-script

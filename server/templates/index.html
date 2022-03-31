@@ -62,7 +62,7 @@
                 <div class="resume-section-content">
                     <h2 class="mb-5">Experience</h2>
                     {% for job in jobs %}
-                        <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+                        <div class="d-flex flex-column flex-md-row justify-content-between">
                         <div class="flex-grow-1">
                             <h3 class="mb-0">{{ job.position }}</h3>
                             <div class="subheading mb-3">{{ job.organisation }}</div>
@@ -70,6 +70,7 @@
                         </div>
                         <div class="flex-shrink-0"><span class="text-primary">{{ job.date_for }} - {{ job.date_to }}</span></div>
                     </div>
+                        {% if forloop.counter != education.count %}<hr>{% endif %}
                     {% endfor %}
                 </div>
             </section>
@@ -79,15 +80,18 @@
                 <div class="resume-section-content">
                     <h2 class="mb-5">Education</h2>
                     {% for item in education %}
-                        <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+                        <div class="d-flex flex-column flex-md-row justify-content-between">
                         <div class="flex-grow-1">
                             <h3 class="mb-0">{{ item.name }}</h3>
                             <div class="subheading mb-3">{{ item.degree }}</div>
                             <div>{{ item.specialization }}</div>
                             <p>GPA: {{ item.gpa }}</p>
                         </div>
-                        <div class="flex-shrink-0"><span class="text-primary">{{ item.date_for }} - {{ item.date_to }}</span></div>
+                        <div class="flex-shrink-0">
+                            <span class="text-primary">{{ item.date_for }} - {{ item.date_to }}</span>
+                        </div>
                     </div>
+                        {% if forloop.counter != education.count %}<hr>{% endif %}
                     {% endfor %}
                 </div>
             </section>
@@ -101,14 +105,14 @@
                         {% for skill in skills %}
                         <div class="col-2 col-xg-1 col-md-1" style="text-align: center">
                             <div class="single-skill">
-                                <i class="{{ skill.icon }} fa-2x fa-fw" style="color: #db7609"></i>
+                                <i class="{{ skill.icon }} fa-2x fa-fw" title="{{ skill.description }}"></i>
                                 <p>{{ skill.name }}</p>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     <div class="subheading mb-3">Soft skills</div>
-                    <ul class="fa-ul mb-0">
+                    <ul class="fa-ul mb-0 character">
                         {% for ch in character_list %}
                             <li>
                             <span class="fa-li"><i class="fas fa-check"></i></span>

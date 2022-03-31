@@ -1,0 +1,35 @@
+version: "2.4"
+
+x-logging: &default-logging
+  logging:
+    options:
+      max-size: '50m'
+      max-file: '5'
+    driver: json-file
+
+services:
+  traefik:
+    image: "traefik:v2.5"
+    restart: always
+    << : *default-logging
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt:/letsencrypt/"
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesResolvers.leresolver.acme.tlsChallenge=true"
+      - "--certificatesresolvers.leresolver.acme.email=ssl@idpowers.com"
+      - "--certificatesresolvers.leresolver.acme.storage=/letsencrypt/acme.json"
+
+volumes:
+  letsencrypt:
